@@ -51,6 +51,12 @@ def rectangle(x, y, width, height, fillcolor):
     end_fill()
 
 
+def write_txt(txt: str): 
+    """ escribe texto en la pantalla """
+    goto(-170, -50)
+    color('black')
+    write(txt, font=('Arial', 20, 'normal'))
+
 def draw():
     """Draw game and move pong ball."""
     clear()
@@ -81,6 +87,7 @@ def draw():
     
     
     if x < -190:
+        write_txt("Jugador de la derecha \n gana") 
         return
        
 
@@ -93,8 +100,9 @@ def draw():
             
 
     if x > 190:
-        return
-
+        write_txt("Jugador de la izquierda \n gana") 
+        return 
+    
     ontimer(draw, 50)
 
 
