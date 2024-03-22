@@ -1,4 +1,4 @@
-from random import choice, random, randrange
+from random import choice, random, randrange, randint
 from turtle import *
 
 from freegames import vector
@@ -11,14 +11,20 @@ state = {1: (0, 0, 50, 0), 2: (0, 0, 50, 0)}
 powerup = vector(0, 0)
 powerup_state = {'active': False, 'type': None}
 
+player_left_movement_rate = 1
+player_right_movement_rate = 1
+
 def create_powerup():
     #Crear un powerup de manera aleatoria
     if not powerup_state['active']:
         powerup.x = randrange(-200, 200)
         powerup.y = randrange(-200, 200)
         powerup_state['active'] = True
-        powerup_state['type'] = 'enlarge_paddle'
-        
+        if randint(0, 1) == 1:
+            powerup_state['type'] = 'enlarge_paddle'
+        else:
+            powerup_state['type'] = 'speedup_paddle'
+            
         ontimer(create_powerup, 10000)  # Create a new powerup every 10 seconds
     else:
         ontimer(create_powerup, 1000)  # Check again in 1 second
@@ -38,16 +44,34 @@ def check_powerup(player):
             if abs((-200 - x - 15) - powerup.x) < 35 and abs((y-15) - powerup.y) < 35:
                 if powerup_state['type'] == 'enlarge_paddle':
                     aumentar_height(player)
+                else:
+                    speedup_paddle(1)
                 powerup_state['active'] = False
         else:
             y, x, _, _ = state[player]
             if abs((190 - x) - powerup.x) < 35 and abs((y-15) - powerup.y) < 35:
                 if powerup_state['type'] == 'enlarge_paddle':
                     aumentar_height(player)
+                else:
+                    speedup_paddle(2)
                 powerup_state['active'] = False
 
-            
-
+def speedup_paddle(player):
+    print("SPEEDUP TRIGGERED")
+    if player == 1:
+        global player_left_movement_rate
+        player_left_movement_rate = 2
+        def restore_l():
+            global player_left_movement_rate 
+            player_left_movement_rate = 1 
+        ontimer(restore_l, 5000)
+    else:
+        global player_right_movement_rate
+        player_right_movement_rate = 2
+        def restore_r():
+            global player_right_movement_rate
+            player_right_movement_rate = 1
+        ontimer(restore_r, 5000)
 
 def move(player, change, direction):
     #Moverse
@@ -126,14 +150,29 @@ setup(420, 420, 370, 0)
 hideturtle()
 tracer(False)
 listen()
-onkey(lambda: move(1, 20, 0), 'w')
-onkey(lambda: move(1, 20, 1), 'a')
-onkey(lambda: move(1, -20, 0), 's')
-onkey(lambda: move(1, -20, 1), 'd')
-onkey(lambda: move(2, 20, 0), 'i')
-onkey(lambda: move(2, 20, 1), 'j')
-onkey(lambda: move(2, -20, 0), 'k')
-onkey(lambda: move(2, -20, 1), 'l')
+
+
+def move_player_factory(player: int, sign: int, axis: int):
+    def _foo():
+        global player_left_movement_rate, player_right_movement_rate
+        rate = 0 
+        if player == 1:
+            rate = player_left_movement_rate
+        else: 
+            rate = player_right_movement_rate
+        move(player, 20 * sign * rate, axis)
+    return _foo
+
+
+onkey(move_player_factory(1, 1, 0), 'w')
+onkey(move_player_factory(1, 1, 1), 'a')
+onkey(move_player_factory(1, -1, 0), 's')
+onkey(move_player_factory(1, -1, 1), 'd')
+
+onkey(move_player_factory(2, 1, 0), 'i')
+onkey(move_player_factory(2, 1, 1), 'j')
+onkey(move_player_factory(2, -1, 0), 'k')
+onkey(move_player_factory(2, -1, 1), 'l')
 
 draw()
 
