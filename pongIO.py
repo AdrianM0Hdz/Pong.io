@@ -41,20 +41,27 @@ def check_powerup(player):
             print(powerup.x, powerup.y)
             print('player', player)
             print(x, y)
-            if abs((-200 - x - 15) - powerup.x) < 35 and abs((y-15) - powerup.y) < 35:
-                if powerup_state['type'] == 'enlarge_paddle':
-                    aumentar_height(player)
-                else:
-                    speedup_paddle(1)
-                powerup_state['active'] = False
+            if powerup.x < -185 - state[1][1] and powerup.x > -205 - state[1][1]:
+                low = state[1][0]
+                high = state[1][0] + state[1][2]
+                if low <= powerup.y <= high:
+                    if powerup_state['type'] == 'enlarge_paddle':
+                        aumentar_height(player)
+                    else:
+                        speedup_paddle(1)
+                    powerup_state['active'] = False               
         else:
             y, x, _, _ = state[player]
-            if abs((190 - x) - powerup.x) < 35 and abs((y-15) - powerup.y) < 35:
-                if powerup_state['type'] == 'enlarge_paddle':
-                    aumentar_height(player)
-                else:
-                    speedup_paddle(2)
-                powerup_state['active'] = False
+            if powerup.x > 185 - state[2][1] and powerup.x < 205 - state[2][1]:
+                low = state[2][0]
+                high = state[2][0] + state[2][2]
+                if low <= powerup.y <= high:
+                    if powerup_state['type'] == 'enlarge_paddle':
+                        aumentar_height(player)
+                    else:
+                        speedup_paddle(2)
+                    powerup_state['active'] = False
+                
 
 def speedup_paddle(player):
     print("SPEEDUP TRIGGERED")
@@ -93,7 +100,7 @@ def aumentar_height(player):
 
 
 def rectangle(x, y, width, height, fillcolor):
-    """Draw rectangle at (x, y) with given width and height."""
+    #Dibujar rectángulo en pantalla con las dimensiones dadas
     up()
     goto(x, y)
     down()
@@ -107,7 +114,7 @@ def rectangle(x, y, width, height, fillcolor):
     end_fill()
 
 def draw():
-    """Draw game and move pong ball."""
+    #Dibujar los elementos en pantalla y actualizar frames. Tambien hacer llamadas a funciones de verificación de colisiones
     clear()
     rectangle(-200 - state[1][1], state[1][0], 10, state[1][2], 'orange')
     rectangle(190 - state[2][1], state[2][0], 10, state[2][2], 'blue')
@@ -146,12 +153,13 @@ def draw():
     check_powerup(2)
     ontimer(draw, 50)
 
+
 setup(420, 420, 370, 0)
 hideturtle()
 tracer(False)
 listen()
 
-
+#Movimiento de los jugadores
 def move_player_factory(player: int, sign: int, axis: int):
     def _foo():
         global player_left_movement_rate, player_right_movement_rate
